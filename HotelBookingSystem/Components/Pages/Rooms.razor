@@ -1,0 +1,270 @@
+@page "/rooms"
+@using HotelBookingSystem.Models
+@using HotelBookingSystem.Services
+@inject RoomService RoomService
+@inject BookingService BookingService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Rooms | AuraStay</PageTitle>
+
+<section class="section-heading">
+    <span>Room Availability Engine</span>
+    <h1>Book one room unit, not the whole hotel</h1>
+    <p>Choose a city and select a specific room package from a specific hotel. Each booking reserves one available room unit for your selected dates.</p>
+</section>
+
+<section class="filter-panel">
+    <EditForm Model="filter" OnValidSubmit="SearchAsync" FormName="room-search">
+        <DataAnnotationsValidator />
+        <div class="form-grid five">
+            <label>
+                City
+                <InputText class="form-control" list="city-options" @bind-Value="filter.City" placeholder="Lahore" />
+                <datalist id="city-options">
+                    @foreach (var city in hotels.Select(hotel => hotel.City).Distinct().OrderBy(city => city))
+                    {
+                        <option value="@city"></option>
+                    }
+                </datalist>
+            </label>
+            <label>
+                Keyword
+                <InputText class="form-control" @bind-Value="filter.Keyword" placeholder="suite, pool, view" />
+            </label>
+            <label>
+                Check-in
+                <InputDate class="form-control" @bind-Value="filter.CheckIn" />
+            </label>
+            <label>
+                Check-out
+                <InputDate class="form-control" @bind-Value="filter.CheckOut" />
+            </label>
+            <label>
+                Guests
+                <InputNumber class="form-control" @bind-Value="filter.Guests" />
+            </label>
+            <label>
+                Room Type
+                <InputSelect class="form-select" @bind-Value="filter.Type">
+                    <option value="">Any type</option>
+                    @foreach (var type in Enum.GetValues<RoomType>())
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </InputSelect>
+            </label>
+            <label>
+                Max Price
+                <InputNumber class="form-control" @bind-Value="filter.MaxPrice" placeholder="40000" />
+            </label>
+        </div>
+        <ValidationSummary />
+        <div class="toolbar-actions">
+            <button class="btn btn-brand" type="submit">Search</button>
+            <button class="btn btn-soft" type="button" @onclick="ResetFilters">Reset</button>
+        </div>
+    </EditForm>
+
+    <div class="hotel-name-strip">
+        <span>Available hotels</span>
+        @foreach (var hotel in hotels)
+        {
+            <button class="hotel-pill" type="button" @onclick="() => SearchCityAsync(hotel.City)">
+                @hotel.Name <small>@hotel.City</small>
+            </button>
+        }
+    </div>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="@messageClass">@message</div>
+}
+
+<div class="room-layout">
+    <aside class="booking-sidebar">
+        @if (selectedRoom is null)
+        {
+            <div class="empty-state">
+                <strong>Select a room</strong>
+                <p>Choose a room package below. The booking form will open here with selected hotel name, dates, and live total calculation.</p>
+            </div>
+        }
+        else
+        {
+            <div class="panel-header">
+                <span>Booking</span>
+                <strong>@selectedRoom.Hotel?.Name</strong>
+            </div>
+            <div class="booking-summary">
+                <span>@selectedRoom.Hotel?.City - @selectedRoom.Name</span>
+                <strong>PKR @EstimatedTotal.ToString("N0")</strong>
+                <small>One room unit selected - @bookingRequest.Guests guests, @Nights nights</small>
+                <small>Room code: @selectedRoom.RoomNumberPrefix - Booking will reserve only this selected room package.</small>
+            </div>
+
+            <EditForm Model="bookingRequest" OnValidSubmit="CreateBookingAsync" FormName="booking-create">
+                <DataAnnotationsValidator />
+                <div class="form-grid booking-form-fields">
+                    <label>
+                        Guest Name
+                        <InputText class="form-control" @bind-Value="bookingRequest.GuestName" />
+                    </label>
+                    <label>
+                        Email
+                        <InputText class="form-control" @bind-Value="bookingRequest.GuestEmail" />
+                    </label>
+                    <label>
+                        Phone
+                        <InputText class="form-control" @bind-Value="bookingRequest.GuestPhone" />
+                    </label>
+                    <label>
+                        Special Request
+                        <InputTextArea class="form-control" @bind-Value="bookingRequest.SpecialRequest" />
+                    </label>
+                </div>
+                <ValidationSummary />
+                <button class="btn btn-brand w-100 mt-3" type="submit">Confirm Booking</button>
+            </EditForm>
+        }
+    </aside>
+
+    <section class="room-results">
+        <div class="result-header">
+            <strong>@rooms.Count room packages available</strong>
+            <span>@filter.CheckIn.ToString("MMM dd") - @filter.CheckOut.ToString("MMM dd")</span>
+        </div>
+
+        @if (rooms.Count == 0)
+        {
+            <div class="empty-state wide not-found-panel">
+                <span class="not-found-code">Not Found</span>
+                <strong>No rooms found@(string.IsNullOrWhiteSpace(filter.City) ? string.Empty : $" in {filter.City.Trim()}")</strong>
+                <p>Try Lahore, Karachi, Islamabad, or Hunza. City search is exact, so Lahore only shows Lahore hotel rooms.</p>
+                <button class="btn btn-soft" @onclick="ResetFilters">Show all rooms</button>
+            </div>
+        }
+        else
+        {
+            @foreach (var room in rooms)
+            {
+                <article class="room-card @(IsSelected(room) ? "selected-room-card" : string.Empty)">
+                    <img src="@room.ImageUrl" alt="@room.Hotel?.Name" />
+                    <div class="room-card-body">
+                        <div class="card-meta">
+                            <span>@room.Hotel?.City</span>
+                            <span>@(IsSelected(room) ? "Selected" : room.Type)</span>
+                        </div>
+                        <h3>@room.Hotel?.Name</h3>
+                        <p class="room-name-line">@room.Name - @room.Highlight</p>
+                        <div class="chip-row">
+                            @foreach (var amenity in room.AmenityList.Take(4))
+                            {
+                                <span class="chip">@amenity</span>
+                            }
+                        </div>
+                        <div class="room-footer">
+                            <div>
+                                <span class="price">PKR @room.FinalPrice.ToString("N0") <small>/ night</small> </span>
+                                @* <small>/ night</small> *@
+                            </div>
+                            <button class="btn @(IsSelected(room) ? "btn-soft" : "btn-brand")" disabled="@IsSelected(room)" @onclick="() => SelectRoom(room)">
+                                @(IsSelected(room) ? "Selected Room" : "Book This Room")
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            }
+        }
+    </section>
+</div>
+
+@code {
+    private RoomSearchFilter filter = new();
+    private List<Hotel> hotels = new();
+    private List<Room> rooms = new();
+    private Room? selectedRoom;
+    private BookingRequest bookingRequest = new();
+    private string? message;
+    private string messageClass = "alert-success";
+
+    private int Nights => Math.Max(1, (bookingRequest.CheckOut.Date - bookingRequest.CheckIn.Date).Days);
+
+    private decimal EstimatedTotal => selectedRoom is null ? 0 : selectedRoom.FinalPrice * Nights;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hotels = await RoomService.GetHotelsAsync();
+        await SearchAsync();
+    }
+
+    private async Task SearchAsync()
+    {
+        selectedRoom = null;
+        rooms = await RoomService.SearchAvailableRoomsAsync(filter);
+    }
+
+    private async Task ResetFilters()
+    {
+        filter = new RoomSearchFilter();
+        await SearchAsync();
+    }
+
+    private async Task SearchCityAsync(string city)
+    {
+        filter.City = city;
+        await SearchAsync();
+    }
+
+    private void SelectRoom(Room room)
+    {
+        if (!AuthService.IsAuthenticated)
+        {
+            message = "Please login first, then select a room to create a booking.";
+            messageClass = "alert-warning";
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        selectedRoom = room;
+        bookingRequest = new BookingRequest
+        {
+            RoomId = room.Id,
+            RoomUnits = 1,
+            CheckIn = filter.CheckIn,
+            CheckOut = filter.CheckOut,
+            Guests = filter.Guests,
+            GuestName = AuthService.CurrentUser?.FullName ?? string.Empty,
+            GuestEmail = AuthService.CurrentUser?.Email ?? string.Empty,
+            GuestPhone = AuthService.CurrentUser?.Phone ?? string.Empty
+        };
+    }
+
+    private async Task CreateBookingAsync()
+    {
+        if (selectedRoom is null || bookingRequest.RoomId != selectedRoom.Id)
+        {
+            message = "Please select one room first. Only the highlighted room will be booked.";
+            messageClass = "alert-danger";
+            return;
+        }
+
+        bookingRequest.RoomUnits = 1;
+        var (result, _) = await BookingService.CreateBookingAsync(bookingRequest, AuthService.CurrentUser);
+        message = result.Message;
+        messageClass = result.Success ? "alert-success" : "alert-danger";
+
+        if (result.Success)
+        {
+            selectedRoom = null;
+            bookingRequest = new BookingRequest();
+            await SearchAsync();
+        }
+    }
+
+    private bool IsSelected(Room room)
+    {
+        return selectedRoom?.Id == room.Id;
+    }
+}

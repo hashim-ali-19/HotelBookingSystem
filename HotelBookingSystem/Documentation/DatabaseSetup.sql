@@ -1,0 +1,97 @@
+-- SQLite setup reference for AuraStay.
+-- The application creates these tables automatically through EF Core EnsureCreated.
+
+CREATE TABLE IF NOT EXISTS Users (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    FullName TEXT NOT NULL,
+    Email TEXT NOT NULL UNIQUE,
+    Phone TEXT NOT NULL,
+    PasswordHash TEXT NOT NULL,
+    Role INTEGER NOT NULL,
+    IsActive INTEGER NOT NULL,
+    CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Hotels (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL,
+    City TEXT NOT NULL,
+    Address TEXT NOT NULL,
+    Description TEXT NOT NULL,
+    ImageUrl TEXT NOT NULL,
+    StarRating INTEGER NOT NULL,
+    GuestRating REAL NOT NULL,
+    Amenities TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Rooms (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    HotelId INTEGER NOT NULL,
+    Name TEXT NOT NULL,
+    RoomNumberPrefix TEXT NOT NULL,
+    Type INTEGER NOT NULL,
+    Capacity INTEGER NOT NULL,
+    BedType TEXT NOT NULL,
+    PricePerNight TEXT NOT NULL,
+    DiscountPercent TEXT NOT NULL,
+    TotalUnits INTEGER NOT NULL,
+    Amenities TEXT NOT NULL,
+    ImageUrl TEXT NOT NULL,
+    Highlight TEXT NOT NULL,
+    IsActive INTEGER NOT NULL,
+    CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TEXT NULL,
+    FOREIGN KEY (HotelId) REFERENCES Hotels(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Bookings (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserId INTEGER NOT NULL,
+    RoomId INTEGER NOT NULL,
+    BookingCode TEXT NOT NULL UNIQUE,
+    GuestName TEXT NOT NULL,
+    GuestEmail TEXT NOT NULL,
+    GuestPhone TEXT NOT NULL,
+    CheckIn TEXT NOT NULL,
+    CheckOut TEXT NOT NULL,
+    Guests INTEGER NOT NULL,
+    SpecialRequest TEXT NOT NULL,
+    TotalAmount TEXT NOT NULL,
+    Status INTEGER NOT NULL,
+    PaymentStatus INTEGER NOT NULL,
+    CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TEXT NULL,
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (RoomId) REFERENCES Rooms(Id)
+);
+
+CREATE TABLE IF NOT EXISTS Payments (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    BookingId INTEGER NOT NULL,
+    PayerName TEXT NOT NULL,
+    Amount TEXT NOT NULL,
+    Method INTEGER NOT NULL,
+    Status INTEGER NOT NULL,
+    TransactionReference TEXT NOT NULL,
+    PaidAt TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TEXT NULL,
+    FOREIGN KEY (BookingId) REFERENCES Bookings(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Reviews (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    HotelId INTEGER NOT NULL,
+    UserId INTEGER NULL,
+    ReviewerName TEXT NOT NULL,
+    Rating INTEGER NOT NULL,
+    Comment TEXT NOT NULL,
+    IsApproved INTEGER NOT NULL,
+    CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TEXT NULL,
+    FOREIGN KEY (HotelId) REFERENCES Hotels(Id) ON DELETE CASCADE,
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE SET NULL
+);

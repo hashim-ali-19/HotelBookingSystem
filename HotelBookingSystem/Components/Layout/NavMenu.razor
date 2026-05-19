@@ -1,0 +1,59 @@
+@using HotelBookingSystem.Services
+@implements IDisposable
+@inject AuthService AuthService
+
+<div class="top-nav-wrap">
+    @* <a class="brand-mark" href="/">
+        <span>AS</span>
+        <strong>AuraStay</strong>
+    </a> *@
+
+    <a class="brand-mark" href="/">
+        <img src="l.png" alt="AuraStay Logo" class="brand-logo" />
+        <strong>AuraStay</strong>
+    </a>
+
+    <input type="checkbox" id="nav-toggle" title="Navigation menu" class="navbar-toggler" />
+    <label class="nav-toggle-label" for="nav-toggle">Menu</label>
+
+
+
+    <nav class="nav-menu" onclick="document.getElementById('nav-toggle').checked = false">
+        <NavLink class="nav-link" href="" Match="NavLinkMatch.All"><span>Overview</span></NavLink>
+        <NavLink class="nav-link" href="rooms"><span>Rooms</span></NavLink>
+        <NavLink class="nav-link" href="bookings"><span>Bookings</span></NavLink>
+        <NavLink class="nav-link" href="account"><span>Account</span></NavLink>
+        <NavLink class="nav-link" href="admin"><span>Admin</span></NavLink>
+    </nav>
+
+    <div class="nav-actions">
+        @if (AuthService.IsAuthenticated)
+        {
+            <span class="session-pill">@AuthService.CurrentUser?.FullName</span>
+            <a class="btn btn-sm btn-soft" href="/logout">Logout</a>
+        }
+        else
+        {
+            <a class="btn btn-sm btn-soft" href="/admin-login">Admin Login</a>
+            <a class="btn btn-sm btn-brand" href="/login">Guest Login</a>
+            <a class="btn btn-sm btn-outline-brand" href="/register">Register</a>
+        }
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        AuthService.AuthStateChanged += HandleAuthChanged;
+    }
+
+    public void Dispose()
+    {
+        AuthService.AuthStateChanged -= HandleAuthChanged;
+    }
+
+    private void HandleAuthChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+}

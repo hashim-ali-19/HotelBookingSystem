@@ -1,0 +1,256 @@
+@page "/bookings"
+@using HotelBookingSystem.Models
+@using HotelBookingSystem.Services
+@inject BookingService BookingService
+@inject PaymentService PaymentService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Bookings | AuraStay</PageTitle>
+
+<section class="section-heading page-intro">
+    <span>Booking Desk</span>
+    <h1>My reservations</h1>
+    <p>Review hotel names, room details, payment status, and complete secure card payments from one clean desk.</p>
+</section>
+
+@if (!AuthService.IsAuthenticated)
+{
+    <div class="empty-state wide elegant-empty">
+        <strong>Login required</strong>
+        <p>Please login to view reservations, payments, cancellation workflow, and booking history.</p>
+        <button class="btn btn-brand" @onclick="GoToLogin">Login</button>
+    </div>
+}
+else
+{
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <div class="@messageClass">@message</div>
+    }
+
+    <section class="metric-strip compact">
+        <div>
+            <strong>@ActiveBookings.Count</strong>
+            <span>Active Reservations</span>
+        </div>
+        <div>
+            <strong>@PaidBookings.Count</strong>
+            <span>Paid Bookings</span>
+        </div>
+        <div>
+            <strong>@UnpaidBookings.Count</strong>
+            <span>Unpaid Bookings</span>
+        </div>
+        <div>
+            <strong>PKR @PaidRevenue.ToString("N0")</strong>
+            <span>Paid Revenue</span>
+        </div>
+        <div>
+            <strong>PKR @PendingAmount.ToString("N0")</strong>
+            <span>Pending Amount</span>
+        </div>
+        <div>
+            <strong>PKR @ActiveTotalValue.ToString("N0")</strong>
+            <span>Active Total</span>
+        </div>
+    </section>
+
+    <div class="booking-list">
+        @foreach (var booking in bookings)
+        {
+            <article class="booking-card refined-booking-card">
+                <div class="booking-main">
+                    <span class="eyebrow">@booking.BookingCode</span>
+                    <h3>@booking.Room?.Hotel?.Name</h3>
+                    <p class="booking-hotel-line">@booking.Room?.Hotel?.City - @booking.Room?.Name</p>
+                    <p>@booking.CheckIn.ToString("MMM dd, yyyy") to @booking.CheckOut.ToString("MMM dd, yyyy")</p>
+                    <div class="chip-row">
+                        <span class="chip">@booking.Guests guests</span>
+                        <span class="chip">@booking.Nights nights</span>
+                        <span class="chip">@booking.Status</span>
+                        <span class="chip">@booking.PaymentStatus</span>
+                        @if (booking.Status == BookingStatus.Cancelled)
+                        {
+                            <span class="chip danger-chip">Excluded from total</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="booking-actions">
+                    <span class="payment-label">Total Amount</span>
+                    <strong>PKR @booking.TotalAmount.ToString("N0")</strong>
+                    <button class="btn btn-brand" disabled="@(booking.PaymentStatus == PaymentStatus.Paid || booking.Status == BookingStatus.Cancelled)" @onclick="() => StartPayment(booking)">
+                        Pay Now
+                    </button>
+                    <button class="btn btn-soft danger" disabled="@(booking.Status == BookingStatus.Cancelled)" @onclick="() => CancelAsync(booking.Id)">
+                        Cancel
+                    </button>
+                </div>
+
+                @if (activePaymentBookingId == booking.Id)
+                {
+                    <div class="payment-panel">
+                        <div class="panel-header">
+                            <span>Secure Payment</span>
+                            <strong>@booking.Room?.Hotel?.Name</strong>
+                        </div>
+
+                        <EditForm Model="paymentInput" OnValidSubmit="() => SubmitPaymentAsync(booking.Id)" FormName="@($"payment-form-{booking.Id}")">
+                            <DataAnnotationsValidator />
+                            <InputRadioGroup @bind-Value="paymentInput.Method">
+                                <div class="payment-methods">
+                                    <label class="method-tile">
+                                        <InputRadio Value="@PaymentMethod.Card" />
+                                        <span>
+                                            <strong>Card Payment</strong>
+                                            <small>Visa, MasterCard, debit or credit card</small>
+                                        </span>
+                                    </label>
+                                    <label class="method-tile">
+                                        <InputRadio Value="@PaymentMethod.Cash" />
+                                        <span>
+                                            <strong>Cash at Hotel</strong>
+                                            <small>Pay at reception on arrival</small>
+                                        </span>
+                                    </label>
+                                    <label class="method-tile">
+                                        <InputRadio Value="@PaymentMethod.BankTransfer" />
+                                        <span>
+                                            <strong>Bank Transfer</strong>
+                                            <small>Manual transfer confirmation</small>
+                                        </span>
+                                    </label>
+                                </div>
+                            </InputRadioGroup>
+
+                            <div class="form-grid payment-fields">
+                                <label>
+                                    Payer Name
+                                    <InputText class="form-control" @bind-Value="paymentInput.PayerName" />
+                                </label>
+
+                                @if (paymentInput.Method == PaymentMethod.Card)
+                                {
+                                    <label>
+                                        Card Holder Name
+                                        <InputText class="form-control" @bind-Value="paymentInput.CardHolderName" placeholder="Name on card" />
+                                    </label>
+                                    <label>
+                                        Card Number
+                                        <InputText class="form-control" @bind-Value="paymentInput.CardNumber" placeholder="4111 1111 1111 1111" />
+                                    </label>
+                                    <label>
+                                        Expiry
+                                        <InputText class="form-control" @bind-Value="paymentInput.Expiry" placeholder="MM/YY" />
+                                    </label>
+                                    <label>
+                                        CVV
+                                        <InputText class="form-control" type="password" @bind-Value="paymentInput.Cvv" placeholder="123" />
+                                    </label>
+                                    <label class="span-two">
+                                        Billing Address
+                                        <InputText class="form-control" @bind-Value="paymentInput.BillingAddress" placeholder="House, street, city" />
+                                    </label>
+                                }
+                            </div>
+
+                            <ValidationSummary />
+                            <div class="toolbar-actions">
+                                <button class="btn btn-brand" type="submit">Submit Payment</button>
+                                <button class="btn btn-soft" type="button" @onclick="ClosePayment">Close</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                }
+            </article>
+        }
+    </div>
+}
+
+@code {
+    private List<Booking> bookings = new();
+    private int? activePaymentBookingId;
+    private PaymentInput paymentInput = new();
+    private string? message;
+    private string messageClass = "alert-success";
+
+    private List<Booking> ActiveBookings => bookings
+        .Where(booking => booking.Status != BookingStatus.Cancelled)
+        .ToList();
+
+    private List<Booking> PaidBookings => ActiveBookings
+        .Where(booking => booking.PaymentStatus == PaymentStatus.Paid)
+        .ToList();
+
+    private List<Booking> UnpaidBookings => ActiveBookings
+        .Where(booking => booking.PaymentStatus == PaymentStatus.Unpaid)
+        .ToList();
+
+    private decimal PaidRevenue => PaidBookings.Sum(booking => booking.TotalAmount);
+
+    private decimal PendingAmount => UnpaidBookings.Sum(booking => booking.TotalAmount);
+
+    private decimal ActiveTotalValue => ActiveBookings.Sum(booking => booking.TotalAmount);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBookingsAsync();
+    }
+
+    private async Task LoadBookingsAsync()
+    {
+        if (AuthService.CurrentUser is null)
+        {
+            return;
+        }
+
+        bookings = AuthService.IsAdmin
+            ? await BookingService.GetBookingsForAdminAsync()
+            : await BookingService.GetBookingsForUserAsync(AuthService.CurrentUser.Id);
+    }
+
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+
+    private void StartPayment(Booking booking)
+    {
+        activePaymentBookingId = booking.Id;
+        paymentInput = new PaymentInput
+        {
+            Method = PaymentMethod.Card,
+            PayerName = AuthService.CurrentUser?.FullName ?? booking.GuestName,
+            CardHolderName = AuthService.CurrentUser?.FullName ?? booking.GuestName
+        };
+    }
+
+    private void ClosePayment()
+    {
+        activePaymentBookingId = null;
+        paymentInput = new PaymentInput();
+    }
+
+    private async Task SubmitPaymentAsync(int bookingId)
+    {
+        var result = await PaymentService.PayBookingAsync(bookingId, paymentInput);
+        message = result.Message;
+        messageClass = result.Success ? "alert-success" : "alert-danger";
+
+        if (result.Success)
+        {
+            ClosePayment();
+        }
+
+        await LoadBookingsAsync();
+    }
+
+    private async Task CancelAsync(int bookingId)
+    {
+        var result = await BookingService.CancelBookingAsync(bookingId, AuthService.CurrentUser);
+        message = result.Message;
+        messageClass = result.Success ? "alert-success" : "alert-danger";
+        await LoadBookingsAsync();
+    }
+}

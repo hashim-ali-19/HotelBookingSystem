@@ -1,0 +1,136 @@
+@page "/"
+@using HotelBookingSystem.Models
+@using HotelBookingSystem.Services
+@inject RoomService RoomService
+@inject BookingService BookingService
+@inject NavigationManager Navigation
+
+<PageTitle>AuraStay Hotel Booking</PageTitle>
+
+<section class="hero-section">
+    <div class="hero-copy">
+        <h1>AuraStay Hotel Booking</h1>
+        <p>Book premium stays across Lahore, Karachi, Islamabad, and Hunza with live availability, payments, reviews, and admin analytics.</p>
+        <div class="hero-actions">
+            <button class="btn btn-brand" @onclick="GoToRooms">Explore Rooms</button>
+            <button class="btn btn-soft" @onclick="GoToAdmin">View Admin Demo</button>
+        </div>
+    </div>
+
+    <div class="booking-panel">
+        <div class="panel-header">
+            <span>Quick Search</span>
+            <strong>Find your stay</strong>
+        </div>
+        <EditForm Model="quickSearch" OnValidSubmit="GoToRooms" FormName="home-search">
+            <DataAnnotationsValidator />
+            <div class="form-grid two">
+                <label>
+                    City
+                    <InputText class="form-control" @bind-Value="quickSearch.City" placeholder="Lahore" />
+                </label>
+                <label>
+                    Guests
+                    <InputNumber class="form-control" @bind-Value="quickSearch.Guests" />
+                </label>
+                <label>
+                    Check-in
+                    <InputDate class="form-control" @bind-Value="quickSearch.CheckIn" />
+                </label>
+                <label>
+                    Check-out
+                    <InputDate class="form-control" @bind-Value="quickSearch.CheckOut" />
+                </label>
+            </div>
+            <ValidationSummary />
+            <button class="btn btn-brand w-100 mt-3" type="submit">Search Availability</button>
+        </EditForm>
+    </div>
+</section>
+
+<section class="metric-strip">
+    <div>
+        <strong>@metrics.TotalHotels</strong>
+        <span>Partner Hotels</span>
+    </div>
+    <div>
+        <strong>@metrics.TotalRooms</strong>
+        <span>Room Units</span>
+    </div>
+    <div>
+        <strong>@metrics.ActiveBookings</strong>
+        <span>Active Bookings</span>
+    </div>
+    <div>
+        <strong>@metrics.AverageRating.ToString("0.0")</strong>
+        <span>Guest Rating</span>
+    </div>
+</section>
+
+<section class="section-heading">
+    <h2>Hotels</h2>
+</section>
+
+<div class="hotel-grid">
+    @foreach (var hotel in hotels)
+    {
+        <article class="hotel-card">
+            <img src="@hotel.ImageUrl" alt="@hotel.Name" />
+            <div class="hotel-card-body">
+                <div class="card-meta">
+                    <span>@hotel.City</span>
+                    <span>@hotel.StarRating star</span>
+                </div>
+                <h3>@hotel.Name</h3>
+                <p>@hotel.Description</p>
+                <div class="chip-row">
+                    @foreach (var amenity in hotel.AmenityList.Take(3))
+                    {
+                        <span class="chip">@amenity</span>
+                    }
+                </div>
+                <button class="btn btn-outline-brand w-100" @onclick="GoToRooms">Check Rooms</button>
+            </div>
+        </article>
+    }
+</div>
+
+<section class="section-heading mt-5">
+    <h2>Recent reviews</h2>
+</section>
+
+<div class="review-grid">
+    @foreach (var review in reviews)
+    {
+        <article class="review-card">
+            <div class="rating-pill">@review.Rating/5</div>
+            <p>@review.Comment</p>
+            <strong>@review.ReviewerName</strong>
+            <span>@review.Hotel?.Name</span>
+        </article>
+    }
+</div>
+
+@code {
+    private readonly RoomSearchFilter quickSearch = new();
+    private List<Hotel> hotels = new();
+    private List<Review> reviews = new();
+    private DashboardMetrics metrics = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        hotels = await RoomService.GetHotelsAsync();
+        reviews = await RoomService.GetRecentReviewsAsync(4);
+        metrics = await BookingService.GetDashboardMetricsAsync();
+    }
+
+    private void GoToRooms()
+    {
+        Navigation.NavigateTo("/rooms");
+    }
+
+    private void GoToAdmin()
+    {
+        Navigation.NavigateTo("/admin");
+    }
+}

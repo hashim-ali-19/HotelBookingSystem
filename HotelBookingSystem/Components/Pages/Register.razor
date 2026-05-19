@@ -1,0 +1,79 @@
+@page "/register"
+@using HotelBookingSystem.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Register | AuraStay</PageTitle>
+
+<section class="auth-shell">
+    <div class="auth-copy">
+        <span class="eyebrow">Guest Profile</span>
+        <h1>Create a refined booking account</h1>
+        <p>Register once, then manage hotel bookings, card payments, cancellations, and reviews from a single dashboard.</p>
+       
+    </div>
+
+    <div class="auth-panel">
+        <div class="auth-form-header">
+            <span>Register</span>
+            <h2>New guest account</h2>
+            <p>Enter clean, real-looking details for a professional demo flow.</p>
+        </div>
+
+        <EditForm Model="register" OnValidSubmit="RegisterAsync" FormName="register-form">
+            <DataAnnotationsValidator />
+            <div class="form-grid one">
+                <label>
+                    Full Name
+                    <InputText class="form-control" @bind-Value="register.FullName" />
+                </label>
+                <label>
+                    Email
+                    <InputText class="form-control" @bind-Value="register.Email" />
+                </label>
+                <label>
+                    Phone
+                    <InputText class="form-control" @bind-Value="register.Phone" />
+                </label>
+                <label>
+                    Password
+                    <InputText class="form-control" type="password" @bind-Value="register.Password" />
+                </label>
+                <label>
+                    Confirm Password
+                    <InputText class="form-control" type="password" @bind-Value="register.ConfirmPassword" />
+                </label>
+            </div>
+            <ValidationSummary />
+            @if (!string.IsNullOrWhiteSpace(message))
+            {
+                <div class="@messageClass">@message</div>
+            }
+            <button class="btn btn-brand w-100" type="submit">Create Account</button>
+            <button class="btn btn-soft w-100 mt-2" type="button" @onclick="GoToLogin">Already have an account?</button>
+        </EditForm>
+    </div>
+</section>
+
+@code {
+    private readonly RegisterInput register = new();
+    private string? message;
+    private string messageClass = "alert-success";
+
+    private async Task RegisterAsync()
+    {
+        var result = await AuthService.RegisterAsync(register);
+        message = result.Message;
+        messageClass = result.Success ? "alert-success" : "alert-danger";
+
+        if (result.Success)
+        {
+            Navigation.NavigateTo("/rooms");
+        }
+    }
+
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+}

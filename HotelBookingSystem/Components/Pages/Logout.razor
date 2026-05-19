@@ -1,0 +1,18 @@
+@page "/logout"
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Logout | AuraStay</PageTitle>
+
+<div class="empty-state wide">
+    <strong>Signing out...</strong>
+    <p>Your local Blazor session is being cleared.</p>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/");
+    }
+}

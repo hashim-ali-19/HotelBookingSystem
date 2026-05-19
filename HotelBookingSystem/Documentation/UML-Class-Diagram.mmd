@@ -1,0 +1,87 @@
+classDiagram
+    class BaseEntity {
+        +int Id
+        +DateTime CreatedAt
+        +DateTime? UpdatedAt
+        +GetDisplayName() string
+    }
+
+    class User {
+        +string FullName
+        +string Email
+        +string Phone
+        +string PasswordHash
+        +UserRole Role
+        +bool IsActive
+        +GetDisplayName() string
+    }
+
+    class Hotel {
+        +string Name
+        +string City
+        +string Address
+        +string Description
+        +int StarRating
+        +double GuestRating
+        +string Amenities
+        +GetDisplayName() string
+    }
+
+    class Room {
+        +int HotelId
+        +string Name
+        +RoomType Type
+        +int Capacity
+        +decimal PricePerNight
+        +decimal DiscountPercent
+        +int TotalUnits
+        +bool IsActive
+        +GetDisplayName() string
+    }
+
+    class Booking {
+        +int UserId
+        +int RoomId
+        +string BookingCode
+        +DateTime CheckIn
+        +DateTime CheckOut
+        +int Guests
+        +decimal TotalAmount
+        +BookingStatus Status
+        +PaymentStatus PaymentStatus
+        +GetDisplayName() string
+    }
+
+    class Payment {
+        +int BookingId
+        +decimal Amount
+        +PaymentMethod Method
+        +PaymentStatus Status
+        +string TransactionReference
+        +DateTime PaidAt
+        +GetDisplayName() string
+    }
+
+    class Review {
+        +int HotelId
+        +int? UserId
+        +string ReviewerName
+        +int Rating
+        +string Comment
+        +bool IsApproved
+        +GetDisplayName() string
+    }
+
+    BaseEntity <|-- User
+    BaseEntity <|-- Hotel
+    BaseEntity <|-- Room
+    BaseEntity <|-- Booking
+    BaseEntity <|-- Payment
+    BaseEntity <|-- Review
+
+    Hotel "1" o-- "*" Room
+    Hotel "1" o-- "*" Review
+    User "1" o-- "*" Booking
+    User "1" o-- "*" Review
+    Room "1" o-- "*" Booking
+    Booking "1" o-- "*" Payment

@@ -1,0 +1,84 @@
+@page "/admin-login"
+@using HotelBookingSystem.Models
+@using HotelBookingSystem.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Admin Login | AuraStay</PageTitle>
+
+<section class="auth-shell admin-auth">
+    <div class="auth-copy">
+        <span class="eyebrow">Administration</span>
+        <h1>Control room inventory and revenue</h1>
+        <p>Separate admin access for staff to monitor bookings, guests, stay dates, payments, profit, and room operations.</p>
+        <div class="auth-feature-list">
+            <span>Booking ledger</span>
+            <span>Revenue</span>
+        </div>
+    </div>
+
+    <div class="auth-panel">
+        <div class="auth-form-header">
+            <span>Staff Portal</span>
+            <h2>Administration sign in</h2>
+            <p>Only administrator accounts can enter this dashboard.</p>
+        </div>
+
+        <div class="demo-login-row">
+            <button class="btn btn-soft" type="button" @onclick="UseAdminDemo">Admin Demo</button>
+            <button class="btn btn-soft" type="button" @onclick="GoToGuestLogin">Guest Portal</button>
+        </div>
+
+        <EditForm Model="login" OnValidSubmit="LoginAsync" FormName="admin-login-form">
+            <DataAnnotationsValidator />
+            <label>
+                Admin Email
+                <InputText class="form-control" @bind-Value="login.Email" placeholder="admin@aurastay.com" />
+            </label>
+            <label>
+                Password
+                <InputText class="form-control" type="password" @bind-Value="login.Password" />
+            </label>
+            <ValidationSummary />
+            @if (!string.IsNullOrWhiteSpace(message))
+            {
+                <div class="@messageClass">@message</div>
+            }
+            <button class="btn btn-brand w-100" type="submit">Enter Admin Dashboard</button>
+        </EditForm>
+
+        <div class="auth-note">
+            <strong>Admin demo</strong>
+            <span>admin@aurastay.com / admin123</span>
+        </div>
+    </div>
+</section>
+
+@code {
+    private readonly LoginInput login = new() { Email = "admin@aurastay.com", Password = "admin123" };
+    private string? message;
+    private string messageClass = "alert-success";
+
+    private async Task LoginAsync()
+    {
+        var result = await AuthService.LoginAsync(login, UserRole.Admin);
+        message = result.Message;
+        messageClass = result.Success ? "alert-success" : "alert-danger";
+
+        if (result.Success)
+        {
+            Navigation.NavigateTo("/admin");
+        }
+    }
+
+    private void UseAdminDemo()
+    {
+        login.Email = "admin@aurastay.com";
+        login.Password = "admin123";
+    }
+
+    private void GoToGuestLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+}

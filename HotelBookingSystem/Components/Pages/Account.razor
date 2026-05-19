@@ -1,0 +1,165 @@
+@page "/account"
+@using HotelBookingSystem.Models
+@using HotelBookingSystem.Services
+@inject AuthService AuthService
+@inject BookingService BookingService
+@inject RoomService RoomService
+@inject NavigationManager Navigation
+
+<PageTitle>Account | AuraStay</PageTitle>
+
+<section class="section-heading">
+    <span>Guest Center</span>
+    <h1>Profile, history, and reviews</h1>
+</section>
+
+@if (!AuthService.IsAuthenticated || AuthService.CurrentUser is null)
+{
+    <div class="empty-state wide">
+        <strong>No active session</strong>
+        <p>Login to see profile details, reservation history, and review submission.</p>
+        <button class="btn btn-brand" @onclick="GoToLogin">Login</button>
+    </div>
+}
+else
+{
+    <div class="account-grid">
+        <section class="profile-panel">
+            <span class="avatar">@Initials</span>
+            <h2>@AuthService.CurrentUser.FullName</h2>
+            <p>@AuthService.CurrentUser.Email</p>
+            <div class="chip-row centered">
+                <span class="chip">@AuthService.CurrentUser.Role</span>
+                <span class="chip">@AuthService.CurrentUser.Phone</span>
+            </div>
+        </section>
+
+        <section class="review-form">
+            <div class="panel-header">
+                <span>Feedback</span>
+                <strong>Submit a hotel review</strong>
+            </div>
+            <EditForm Model="review" OnValidSubmit="SubmitReviewAsync" FormName="review-form">
+                <DataAnnotationsValidator />
+                <div class="form-grid one">
+                    <label>
+                        Hotel
+                        <InputSelect class="form-select" @bind-Value="review.HotelId">
+                            @foreach (var hotel in hotels)
+                            {
+                                <option value="@hotel.Id">@hotel.Name</option>
+                            }
+                        </InputSelect>
+                    </label>
+                    <label>
+                        Rating
+                        <InputNumber class="form-control" @bind-Value="review.Rating" />
+                    </label>
+                    <label>
+                        Comment
+                        <InputTextArea class="form-control" @bind-Value="review.Comment" />
+                    </label>
+                </div>
+                <ValidationSummary />
+                @if (!string.IsNullOrWhiteSpace(message))
+                {
+                    <div class="@messageClass">@message</div>
+                }
+                <button class="btn btn-brand w-100" type="submit">Submit Review</button>
+            </EditForm>
+        </section>
+    </div>
+
+    <section class="section-heading mt-5">
+        <span>History</span>
+        <h2>Recent bookings</h2>
+    </section>
+
+    <div class="table-shell">
+        <table class="app-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Hotel</th>
+                    <th>Dates</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in bookings.Take(6))
+                {
+                    <tr>
+                        <td>@booking.BookingCode</td>
+                        <td>@booking.Room?.Hotel?.Name</td>
+                        <td>@booking.CheckIn.ToString("MMM dd") - @booking.CheckOut.ToString("MMM dd")</td>
+                        <td><span class="status">@booking.Status</span></td>
+                        <td><span class="status">@booking.PaymentStatus</span></td>
+                        <td>PKR @booking.TotalAmount.ToString("N0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Hotel> hotels = new();
+    private List<Booking> bookings = new();
+    private Review review = new() { Rating = 5 };
+    private string? message;
+    private string messageClass = "alert-success";
+
+    private string Initials => AuthService.CurrentUser is null
+        ? "AS"
+        : string.Join("", AuthService.CurrentUser.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(part => part[0])).ToUpperInvariant();
+
+    protected override async Task OnInitializedAsync()
+    {
+        hotels = await RoomService.GetHotelsAsync();
+
+        if (hotels.Count > 0)
+        {
+            review.HotelId = hotels[0].Id;
+        }
+
+        if (AuthService.CurrentUser is not null)
+        {
+            bookings = await BookingService.GetBookingsForUserAsync(AuthService.CurrentUser.Id);
+            review.UserId = AuthService.CurrentUser.Id;
+            review.ReviewerName = AuthService.CurrentUser.FullName;
+        }
+    }
+
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+
+    private async Task SubmitReviewAsync()
+    {
+        if (AuthService.CurrentUser is null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        review.UserId = AuthService.CurrentUser.Id;
+        review.ReviewerName = AuthService.CurrentUser.FullName;
+        var result = await RoomService.AddReviewAsync(review);
+        message = result.Message;
+        messageClass = result.Success ? "alert-success" : "alert-danger";
+
+        if (result.Success)
+        {
+            review = new Review
+            {
+                HotelId = hotels.FirstOrDefault()?.Id ?? 0,
+                UserId = AuthService.CurrentUser.Id,
+                ReviewerName = AuthService.CurrentUser.FullName,
+                Rating = 5
+            };
+        }
+    }
+}

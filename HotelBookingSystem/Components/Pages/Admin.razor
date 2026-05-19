@@ -1,0 +1,123 @@
+@page "/admin"
+@using HotelBookingSystem.Models
+@using HotelBookingSystem.Services
+@inject AuthService AuthService
+@inject RoomService RoomService
+@inject BookingService BookingService
+@inject NavigationManager Navigation
+
+<PageTitle>Admin | AuraStay</PageTitle>
+
+<section class="admin-hero">
+    <div>
+        <span class="eyebrow">Administration</span>
+        <h1>Guest stay history and total revenue.</h1>
+        <p>See who is staying in the hotel, their complete booking history, stay duration, dates, payment status, and total revenue.</p>
+    </div>
+    <button class="btn btn-brand" @onclick="LoadAdminDataAsync">Refresh Records</button>
+</section>
+
+@if (!AuthService.IsAdmin)
+{
+    <div class="empty-state wide elegant-empty">
+        <strong>Admin access required</strong>
+        <p>Use the separate administration login panel to view the booking ledger and business records.</p>
+        <button class="btn btn-brand" @onclick="GoToLogin">Login as Admin</button>
+    </div>
+}
+else
+{
+    <section class="metric-strip admin-metrics">
+        <div>
+            <strong>PKR @metrics.Revenue.ToString("N0")</strong>
+            <span>Total Paid Revenue</span>
+        </div>
+        <div>
+            <strong>@metrics.ActiveBookings</strong>
+            <span>Active Stays / Bookings</span>
+        </div>
+        <div>
+            <strong>@metrics.TotalGuests</strong>
+            <span>Total Guests</span>
+        </div>
+        <div>
+            <strong>PKR @metrics.PendingPayments.ToString("N0")</strong>
+            <span>Pending Amount</span>
+        </div>
+    </section>
+
+    <section class="section-heading mt-5">
+        <span>Customer History</span>
+        <h2>Who is staying and what they booked</h2>
+    </section>
+
+    <div class="table-shell admin-ledger">
+        <table class="app-table">
+            <thead>
+                <tr>
+                    <th>Booking</th>
+                    <th>Guest</th>
+                    <th>Hotel / Room</th>
+                    <th>Stay</th>
+                    <th>Payment / Revenue</th>
+                    <th>Stay Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in bookings)
+                {
+                    <tr>
+                        <td>
+                            <strong>@booking.BookingCode</strong>
+                            <span class="table-sub">@booking.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                        </td>
+                        <td>
+                            <strong>@booking.GuestName</strong>
+                            <span class="table-sub">@booking.GuestEmail</span>
+                            <span class="table-sub">@booking.GuestPhone</span>
+                        </td>
+                        <td>
+                            <strong>@booking.Room?.Hotel?.Name</strong>
+                            <span class="table-sub">@booking.Room?.Hotel?.City - @booking.Room?.Name</span>
+                            <span class="table-sub">One room unit booked</span>
+                        </td>
+                        <td>
+                            <strong>@booking.Nights nights</strong>
+                            <span class="table-sub">@booking.CheckIn.ToString("MMM dd, yyyy") to @booking.CheckOut.ToString("MMM dd, yyyy")</span>
+                            <span class="table-sub">@booking.Guests guests</span>
+                        </td>
+                        <td>
+                            <span class="status">@booking.PaymentStatus</span>
+                            <span class="table-sub">PKR @booking.TotalAmount.ToString("N0")</span>
+                        </td>
+                        <td class="table-actions">
+                            <span class="status">@booking.Status</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private DashboardMetrics metrics = new();
+    private List<Booking> bookings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAdminDataAsync();
+    }
+
+    private async Task LoadAdminDataAsync()
+    {
+        bookings = await BookingService.GetBookingsForAdminAsync();
+        metrics = await BookingService.GetDashboardMetricsAsync();
+    }
+
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/admin-login");
+    }
+
+}

@@ -1,0 +1,77 @@
+@page "/login"
+@using HotelBookingSystem.Models
+@using HotelBookingSystem.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Login | AuraStay</PageTitle>
+
+<section class="auth-shell">
+    <div class="auth-copy">
+        <span class="eyebrow">Guest Access</span>
+        <h1>Book your next stay in seconds</h1>
+        <p>Guest login is reserved for customers who want to book one room, pay securely, manage reservations, and review hotels.</p>
+        <div class="auth-feature-list">
+            <span>Curated hotels</span>
+            <span>Secure payments</span>
+            <span>Personal dashboard</span>
+        </div>
+    </div>
+
+
+    <div class="auth-panel">
+        <div class="auth-form-header">
+            <span>Guest Portal</span>
+            <h2>Customer sign in</h2>
+            <p>Login with your registered customer account. New customers should register first.</p>
+        </div>
+
+        <EditForm Model="login" OnValidSubmit="LoginAsync" FormName="login-form">
+            <DataAnnotationsValidator />
+            <label>
+                Email
+                <InputText class="form-control" @bind-Value="login.Email" placeholder="customer@email.com" />
+            </label>
+            <label>
+                Password
+                <InputText class="form-control" type="password" @bind-Value="login.Password" />
+            </label>
+            <ValidationSummary />
+            @if (!string.IsNullOrWhiteSpace(message))
+            {
+                <div class="@messageClass">@message</div>
+            }
+            <button class="btn btn-brand w-100" type="submit">Login</button>
+            <button class="btn btn-soft w-100 mt-2" type="button" @onclick="GoToRegister">Create Account</button>
+            <button class="btn btn-soft w-100 mt-2" type="button" @onclick="GoToAdminLogin">Administration Login</button>
+        </EditForm>
+    </div>
+</section>
+
+@code {
+    private readonly LoginInput login = new();
+    private string? message;
+    private string messageClass = "alert-success";
+
+    private async Task LoginAsync()
+    {
+        var result = await AuthService.LoginAsync(login, UserRole.Guest);
+        message = result.Message;
+        messageClass = result.Success ? "alert-success" : "alert-danger";
+
+        if (result.Success)
+        {
+            Navigation.NavigateTo("/rooms");
+        }
+    }
+
+    private void GoToRegister()
+    {
+        Navigation.NavigateTo("/register");
+    }
+
+    private void GoToAdminLogin()
+    {
+        Navigation.NavigateTo("/admin-login");
+    }
+}
