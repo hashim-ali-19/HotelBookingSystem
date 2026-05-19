@@ -13,6 +13,14 @@
     <h1>Profile, history, and reviews</h1>
 </section>
 
+@if (!AuthService.IsAuthenticated || AuthService.CurrentUser is null)
+{
+    <div class="empty-state wide">
+        <strong>No active session</strong>
+        <p>Login to see profile details, reservation history, and review submission.</p>
+        <button class="btn btn-brand" @onclick="GoToLogin">Login</button>
+    </div>
+}
 else
 {
     <div class="account-grid">
