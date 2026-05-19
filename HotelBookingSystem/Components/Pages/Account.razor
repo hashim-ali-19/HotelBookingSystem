@@ -23,7 +23,16 @@
 }
 else
 {
-    
+    <div class="account-grid">
+        <section class="profile-panel">
+            <span class="avatar">@Initials</span>
+            <h2>@AuthService.CurrentUser.FullName</h2>
+            <p>@AuthService.CurrentUser.Email</p>
+            <div class="chip-row centered">
+                <span class="chip">@AuthService.CurrentUser.Role</span>
+                <span class="chip">@AuthService.CurrentUser.Phone</span>
+            </div>
+        </section>
 
         <section class="review-form">
             <div class="panel-header">
