@@ -6,6 +6,15 @@
 @inject BookingService BookingService
 @inject NavigationManager Navigation
 
+<PageTitle>Admin | AuraStay</PageTitle>
+
+<section class="admin-hero">
+    <div>
+        <span class="eyebrow">Administration</span>
+        <h1>Guest stay history and total revenue.</h1>
+        <p>See who is staying in the hotel, their complete booking history, stay duration, dates, payment status, and total revenue.</p>
+    </div>
+    <button class="btn btn-brand" @onclick="LoadAdminDataAsync">Refresh Records</button>
 </section>
 
 @if (!AuthService.IsAdmin)
