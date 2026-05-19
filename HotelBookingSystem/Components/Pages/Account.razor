@@ -132,11 +132,6 @@ else
         }
     }
 
-    private void GoToLogin()
-    {
-        Navigation.NavigateTo("/login");
-    }
-
     private async Task SubmitReviewAsync()
     {
         if (AuthService.CurrentUser is null)
