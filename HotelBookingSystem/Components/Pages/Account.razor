@@ -88,7 +88,21 @@ else
                 </tr>
             </thead>
             <tbody>
-               
+                @foreach (var booking in bookings.Take(6))
+                {
+                    <tr>
+                        <td>@booking.BookingCode</td>
+                        <td>@booking.Room?.Hotel?.Name</td>
+                        <td>@booking.CheckIn.ToString("MMM dd") - @booking.CheckOut.ToString("MMM dd")</td>
+                        <td><span class="status">@booking.Status</span></td>
+                        <td><span class="status">@booking.PaymentStatus</span></td>
+                        <td>PKR @booking.TotalAmount.ToString("N0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
 
 @code {
     private List<Hotel> hotels = new();
