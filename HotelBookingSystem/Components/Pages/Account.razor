@@ -70,24 +70,7 @@ else
         </section>
     </div>
 
-    <section class="section-heading mt-5">
-        <span>History</span>
-        <h2>Recent bookings</h2>
-    </section>
-
-    <div class="table-shell">
-        <table class="app-table">
-            <thead>
-                <tr>
-                    <th>Code</th>
-                    <th>Hotel</th>
-                    <th>Dates</th>
-                    <th>Status</th>
-                    <th>Payment</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
+  
                 @foreach (var booking in bookings.Take(6))
                 {
                     <tr>
