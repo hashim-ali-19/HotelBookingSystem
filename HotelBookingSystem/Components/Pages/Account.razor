@@ -6,7 +6,12 @@
 @inject RoomService RoomService
 @inject NavigationManager Navigation
 
+<PageTitle>Account | AuraStay</PageTitle>
 
+<section class="section-heading">
+    <span>Guest Center</span>
+    <h1>Profile, history, and reviews</h1>
+</section>
 
 @if (!AuthService.IsAuthenticated || AuthService.CurrentUser is null)
 {
