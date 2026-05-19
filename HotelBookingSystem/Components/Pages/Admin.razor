@@ -6,16 +6,18 @@
 @inject BookingService BookingService
 @inject NavigationManager Navigation
 
+<PageTitle>Admin | AuraStay</PageTitle>
 
-
-@if (!AuthService.IsAdmin)
-{
-    <div class="empty-state wide elegant-empty">
-        <strong>Admin access required</strong>
-        <p>Use the separate administration login panel to view the booking ledger and business records.</p>
-        <button class="btn btn-brand" @onclick="GoToLogin">Login as Admin</button>
+<section class="admin-hero">
+    <div>
+        <span class="eyebrow">Administration</span>
+        <h1>Guest stay history and total revenue.</h1>
+        <p>See who is staying in the hotel, their complete booking history, stay duration, dates, payment status, and total revenue.</p>
     </div>
-}
+    <button class="btn btn-brand" @onclick="LoadAdminDataAsync">Refresh Records</button>
+</section>
+
+
 else
 {
     <section class="metric-strip admin-metrics">
