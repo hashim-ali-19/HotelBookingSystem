@@ -137,4 +137,29 @@ else
         Navigation.NavigateTo("/login");
     }
 
-    
+    private async Task SubmitReviewAsync()
+    {
+        if (AuthService.CurrentUser is null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        review.UserId = AuthService.CurrentUser.Id;
+        review.ReviewerName = AuthService.CurrentUser.FullName;
+        var result = await RoomService.AddReviewAsync(review);
+        message = result.Message;
+        messageClass = result.Success ? "alert-success" : "alert-danger";
+
+        if (result.Success)
+        {
+            review = new Review
+            {
+                HotelId = hotels.FirstOrDefault()?.Id ?? 0,
+                UserId = AuthService.CurrentUser.Id,
+                ReviewerName = AuthService.CurrentUser.FullName,
+                Rating = 5
+            };
+        }
+    }
+}
