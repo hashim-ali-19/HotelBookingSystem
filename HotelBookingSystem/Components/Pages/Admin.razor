@@ -17,14 +17,6 @@
     <button class="btn btn-brand" @onclick="LoadAdminDataAsync">Refresh Records</button>
 </section>
 
-@if (!AuthService.IsAdmin)
-{
-    <div class="empty-state wide elegant-empty">
-        <strong>Admin access required</strong>
-        <p>Use the separate administration login panel to view the booking ledger and business records.</p>
-        <button class="btn btn-brand" @onclick="GoToLogin">Login as Admin</button>
-    </div>
-}
 else
 {
     <section class="metric-strip admin-metrics">
