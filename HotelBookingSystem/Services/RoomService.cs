@@ -1,4 +1,16 @@
+using HotelBookingSystem.Models;
+using HotelBookingSystem.Repositories;
 
+namespace HotelBookingSystem.Services;
+
+public class RoomService
+{
+    private readonly IRoomRepository _roomRepository;
+
+    public RoomService(IRoomRepository roomRepository)
+    {
+        _roomRepository = roomRepository;
+    }
 
     public Task<List<Hotel>> GetHotelsAsync()
     {
