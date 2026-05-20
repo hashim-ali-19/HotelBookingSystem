@@ -6,15 +6,15 @@
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 
+<PageTitle>Bookings | AuraStay</PageTitle>
 
-@if (!AuthService.IsAuthenticated)
-{
-    <div class="empty-state wide elegant-empty">
-        <strong>Login required</strong>
-        <p>Please login to view reservations, payments, cancellation workflow, and booking history.</p>
-        <button class="btn btn-brand" @onclick="GoToLogin">Login</button>
-    </div>
-}
+<section class="section-heading page-intro">
+    <span>Booking Desk</span>
+    <h1>My reservations</h1>
+    <p>Review hotel names, room details, payment status, and complete secure card payments from one clean desk.</p>
+</section>
+
+
 else
 {
     @if (!string.IsNullOrWhiteSpace(message))
