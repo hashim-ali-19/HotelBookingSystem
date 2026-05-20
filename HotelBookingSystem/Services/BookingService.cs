@@ -18,7 +18,16 @@ public class BookingService
         _dbContext = dbContext;
     }
 
-  
+    public Task<List<Booking>> GetBookingsForUserAsync(int userId)
+    {
+        return _bookingRepository.GetBookingsForUserAsync(userId);
+    }
+
+    public Task<List<Booking>> GetBookingsForAdminAsync()
+    {
+        return _bookingRepository.GetBookingsForAdminAsync();
+    }
+
     public async Task<(ServiceResult Result, Booking? Booking)> CreateBookingAsync(BookingRequest request, User? user)
     {
         if (user is null)
