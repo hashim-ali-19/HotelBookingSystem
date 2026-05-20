@@ -22,7 +22,11 @@
                 City
                 <InputText class="form-control" list="city-options" @bind-Value="filter.City" placeholder="Lahore" />
                 <datalist id="city-options">
-                  
+                    @foreach (var city in hotels.Select(hotel => hotel.City).Distinct().OrderBy(city => city))
+                    {
+                        <option value="@city"></option>
+                    }
+                </datalist>
             </label>
             <label>
                 Keyword
