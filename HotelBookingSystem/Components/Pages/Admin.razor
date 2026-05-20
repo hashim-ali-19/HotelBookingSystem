@@ -101,4 +101,23 @@ else
 }
 
 @code {
-   
+    private DashboardMetrics metrics = new();
+    private List<Booking> bookings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAdminDataAsync();
+    }
+
+    private async Task LoadAdminDataAsync()
+    {
+        bookings = await BookingService.GetBookingsForAdminAsync();
+        metrics = await BookingService.GetDashboardMetricsAsync();
+    }
+
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/admin-login");
+    }
+
+}
