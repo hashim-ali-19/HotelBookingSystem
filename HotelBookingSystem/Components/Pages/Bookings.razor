@@ -14,7 +14,14 @@
     <p>Review hotel names, room details, payment status, and complete secure card payments from one clean desk.</p>
 </section>
 
-
+@if (!AuthService.IsAuthenticated)
+{
+    <div class="empty-state wide elegant-empty">
+        <strong>Login required</strong>
+        <p>Please login to view reservations, payments, cancellation workflow, and booking history.</p>
+        <button class="btn btn-brand" @onclick="GoToLogin">Login</button>
+    </div>
+}
 else
 {
     @if (!string.IsNullOrWhiteSpace(message))
