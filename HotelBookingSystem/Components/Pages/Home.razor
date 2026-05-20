@@ -72,26 +72,7 @@
 </section>
 
 <div class="hotel-grid">
-    @foreach (var hotel in hotels)
-    {
-        <article class="hotel-card">
-            <img src="@hotel.ImageUrl" alt="@hotel.Name" />
-            <div class="hotel-card-body">
-                <div class="card-meta">
-                    <span>@hotel.City</span>
-                    <span>@hotel.StarRating star</span>
-                </div>
-                <h3>@hotel.Name</h3>
-                <p>@hotel.Description</p>
-                <div class="chip-row">
-                    @foreach (var amenity in hotel.AmenityList.Take(3))
-                    {
-                        <span class="chip">@amenity</span>
-                    }
-                </div>
-                <button class="btn btn-outline-brand w-100" @onclick="GoToRooms">Check Rooms</button>
-            </div>
-        </article>
+rticle>
     }
 </div>
 
