@@ -169,7 +169,23 @@ else
 }
 
 @code {
-  
+    private List<Booking> bookings = new();
+    private int? activePaymentBookingId;
+    private PaymentInput paymentInput = new();
+    private string? message;
+    private string messageClass = "alert-success";
+
+    private List<Booking> ActiveBookings => bookings
+        .Where(booking => booking.Status != BookingStatus.Cancelled)
+        .ToList();
+
+    private List<Booking> PaidBookings => ActiveBookings
+        .Where(booking => booking.PaymentStatus == PaymentStatus.Paid)
+        .ToList();
+
+    private List<Booking> UnpaidBookings => ActiveBookings
+        .Where(booking => booking.PaymentStatus == PaymentStatus.Unpaid)
+        .ToList();
 
     private decimal PaidRevenue => PaidBookings.Sum(booking => booking.TotalAmount);
 
