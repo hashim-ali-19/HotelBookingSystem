@@ -23,22 +23,7 @@ public class RoomService
     }
 
     public Task<List<Room>> SearchAvailableRoomsAsync(RoomSearchFilter filter)
-    {
-        return _roomRepository.SearchAvailableRoomsAsync(filter);
-    }
-
-    public Task<Room?> GetRoomAsync(int id)
-    {
-        return _roomRepository.GetByIdAsync(id);
-    }
-
-    public Task<int> GetAvailableUnitsAsync(int roomId, DateTime checkIn, DateTime checkOut)
-    {
-        return _roomRepository.GetAvailableUnitsAsync(roomId, checkIn, checkOut);
-    }
-
-    public Task<List<Review>> GetRecentReviewsAsync(int count = 6)
-    {
+    
         return _roomRepository.GetRecentReviewsAsync(count);
     }
 
