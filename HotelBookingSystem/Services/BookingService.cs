@@ -33,7 +33,23 @@ public class BookingService
         if (user is null)
         {
             return (new ServiceResult(false, "Please login before creating a booking."), null);
-       
+        }
+
+        if (request.RoomUnits != 1)
+        {
+            return (new ServiceResult(false, "Please select exactly one room unit before confirming."), null);
+        }
+
+        var room = await _roomRepository.GetByIdAsync(request.RoomId);
+        if (room is null)
+        {
+            return (new ServiceResult(false, "Selected room was not found."), null);
+        }
+
+        if (request.Guests > room.Capacity)
+        {
+            return (new ServiceResult(false, "Guest count is higher than this room capacity."), null);
+        }
 
         var availableUnits = await _roomRepository.GetAvailableUnitsAsync(room.Id, request.CheckIn, request.CheckOut);
         if (availableUnits <= 0)
