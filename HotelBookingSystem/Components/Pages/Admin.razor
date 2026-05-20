@@ -64,24 +64,20 @@ else
                 </tr>
             </thead>
             <tbody>
-              
-                            <strong>@booking.Room?.Hotel?.Name</strong>
-                            <span class="table-sub">@booking.Room?.Hotel?.City - @booking.Room?.Name</span>
-                            <span class="table-sub">One room unit booked</span>
+                @foreach (var booking in bookings)
+                {
+                    <tr>
+                        <td>
+                            <strong>@booking.BookingCode</strong>
+                            <span class="table-sub">@booking.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
                         </td>
                         <td>
-                            <strong>@booking.Nights nights</strong>
-                            <span class="table-sub">@booking.CheckIn.ToString("MMM dd, yyyy") to @booking.CheckOut.ToString("MMM dd, yyyy")</span>
-                            <span class="table-sub">@booking.Guests guests</span>
+                            <strong>@booking.GuestName</strong>
+                            <span class="table-sub">@booking.GuestEmail</span>
+                            <span class="table-sub">@booking.GuestPhone</span>
                         </td>
                         <td>
-                            <span class="status">@booking.PaymentStatus</span>
-                            <span class="table-sub">PKR @booking.TotalAmount.ToString("N0")</span>
-                        </td>
-                        <td class="table-actions">
-                            <span class="status">@booking.Status</span>
-                        </td>
-                    </tr>
+                   
                 }
             </tbody>
         </table>
