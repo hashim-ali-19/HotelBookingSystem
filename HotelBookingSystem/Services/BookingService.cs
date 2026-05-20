@@ -79,7 +79,28 @@ public class BookingService
         return (new ServiceResult(true, $"Booking {booking.BookingCode} created successfully."), booking);
     }
 
-  new ServiceResult(true, "Booking cancelled successfully.");
+    public async Task<ServiceResult> CancelBookingAsync(int bookingId, User? user)
+    {
+        var booking = await _bookingRepository.GetBookingDetailsAsync(bookingId);
+        if (booking is null)
+        {
+            return new ServiceResult(false, "Booking not found.");
+        }
+
+        if (user is null || (!IsOwner(user, booking) && user.Role != UserRole.Admin))
+        {
+            return new ServiceResult(false, "You are not allowed to cancel this booking.");
+        }
+
+        if (booking.Status is BookingStatus.Completed or BookingStatus.CheckedIn)
+        {
+            return new ServiceResult(false, "Checked-in or completed bookings cannot be cancelled.");
+        }
+
+        booking.Status = BookingStatus.Cancelled;
+        booking.UpdatedAt = DateTime.UtcNow;
+        await _bookingRepository.UpdateAsync(booking);
+        return new ServiceResult(true, "Booking cancelled successfully.");
     }
 
     public async Task<ServiceResult> UpdateBookingStatusAsync(int bookingId, BookingStatus status)
