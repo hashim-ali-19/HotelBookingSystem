@@ -66,3 +66,20 @@ public class RoomService
         {
             return new ServiceResult(false, "Room package not found.");
         }
+
+        room.IsActive = false;
+        await _roomRepository.UpdateAsync(room);
+        return new ServiceResult(true, "Room package deactivated.");
+    }
+
+    public async Task<ServiceResult> AddReviewAsync(Review review)
+    {
+        if (review.Rating < 1 || review.Rating > 5)
+        {
+            return new ServiceResult(false, "Rating must be between 1 and 5.");
+        }
+
+        await _roomRepository.AddReviewAsync(review);
+        return new ServiceResult(true, "Review submitted successfully.");
+    }
+}
