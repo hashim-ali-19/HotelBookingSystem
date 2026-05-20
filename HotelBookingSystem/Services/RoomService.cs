@@ -55,14 +55,14 @@ public class RoomService
             return new ServiceResult(true, "Room package added successfully.");
         }
 
-    public async Task<ServiceResult> AddReviewAsync(Review review)
-    {
-        if (review.Rating < 1 || review.Rating > 5)
-        {
-            return new ServiceResult(false, "Rating must be between 1 and 5.");
-        }
-
-        await _roomRepository.AddReviewAsync(review);
-        return new ServiceResult(true, "Review submitted successfully.");
+        await _roomRepository.UpdateAsync(room);
+        return new ServiceResult(true, "Room package updated successfully.");
     }
-}
+
+    public async Task<ServiceResult> DeleteRoomAsync(int roomId)
+    {
+        var room = await _roomRepository.GetByIdAsync(roomId);
+        if (room is null)
+        {
+            return new ServiceResult(false, "Room package not found.");
+        }
