@@ -57,7 +57,19 @@ else
     </section>
 
     <div class="booking-list">
-       
+        @foreach (var booking in bookings)
+        {
+            <article class="booking-card refined-booking-card">
+                <div class="booking-main">
+                    <span class="eyebrow">@booking.BookingCode</span>
+                    <h3>@booking.Room?.Hotel?.Name</h3>
+                    <p class="booking-hotel-line">@booking.Room?.Hotel?.City - @booking.Room?.Name</p>
+                    <p>@booking.CheckIn.ToString("MMM dd, yyyy") to @booking.CheckOut.ToString("MMM dd, yyyy")</p>
+                    <div class="chip-row">
+                        <span class="chip">@booking.Guests guests</span>
+                        <span class="chip">@booking.Nights nights</span>
+                        <span class="chip">@booking.Status</span>
+                        <span class="chip">@booking.PaymentStatus</span>
                         @if (booking.Status == BookingStatus.Cancelled)
                         {
                             <span class="chip danger-chip">Excluded from total</span>
