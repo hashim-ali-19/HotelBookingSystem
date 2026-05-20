@@ -6,7 +6,13 @@
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 
+<PageTitle>Rooms | AuraStay</PageTitle>
 
+<section class="section-heading">
+    <span>Room Availability Engine</span>
+    <h1>Book one room unit, not the whole hotel</h1>
+    <p>Choose a city and select a specific room package from a specific hotel. Each booking reserves one available room unit for your selected dates.</p>
+</section>
 
 <section class="filter-panel">
     <EditForm Model="filter" OnValidSubmit="SearchAsync" FormName="room-search">
