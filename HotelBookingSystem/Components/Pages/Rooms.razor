@@ -48,28 +48,14 @@
                 Room Type
                 <InputSelect class="form-select" @bind-Value="filter.Type">
                     <option value="">Any type</option>
-                 
-            <label>
-                Max Price
-                <InputNumber class="form-control" @bind-Value="filter.MaxPrice" placeholder="40000" />
+                    @foreach (var type in Enum.GetValues<RoomType>())
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </InputSelect>
             </label>
-        </div>
-        <ValidationSummary />
-        <div class="toolbar-actions">
-            <button class="btn btn-brand" type="submit">Search</button>
-            <button class="btn btn-soft" type="button" @onclick="ResetFilters">Reset</button>
-        </div>
-    </EditForm>
-
-    <div class="hotel-name-strip">
-        <span>Available hotels</span>
-        @foreach (var hotel in hotels)
-        {
-            <button class="hotel-pill" type="button" @onclick="() => SearchCityAsync(hotel.City)">
-                @hotel.Name <small>@hotel.City</small>
-            </button>
-        }
-    </div>
+            <label>
+               
 </section>
 
 @if (!string.IsNullOrWhiteSpace(message))
