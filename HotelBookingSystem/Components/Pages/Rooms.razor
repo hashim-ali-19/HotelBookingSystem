@@ -14,21 +14,7 @@
     <p>Choose a city and select a specific room package from a specific hotel. Each booking reserves one available room unit for your selected dates.</p>
 </section>
 
-<section class="filter-panel">
-    <EditForm Model="filter" OnValidSubmit="SearchAsync" FormName="room-search">
-        <DataAnnotationsValidator />
-        <div class="form-grid five">
-            <label>
-                City
-                <InputText class="form-control" list="city-options" @bind-Value="filter.City" placeholder="Lahore" />
-                <datalist id="city-options">
-                    @foreach (var city in hotels.Select(hotel => hotel.City).Distinct().OrderBy(city => city))
-                    {
-                        <option value="@city"></option>
-                    }
-                </datalist>
-            </label>
-            <label>
+
                 Keyword
                 <InputText class="form-control" @bind-Value="filter.Keyword" placeholder="suite, pool, view" />
             </label>
