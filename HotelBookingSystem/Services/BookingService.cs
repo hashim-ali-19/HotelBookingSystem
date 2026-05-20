@@ -1,15 +1,24 @@
+using HotelBookingSystem.Data;
+using HotelBookingSystem.Models;
+using HotelBookingSystem.Repositories;
+using Microsoft.EntityFrameworkCore;
 
+namespace HotelBookingSystem.Services;
 
-    public Task<List<Booking>> GetBookingsForUserAsync(int userId)
+public class BookingService
+{
+    private readonly IBookingRepository _bookingRepository;
+    private readonly IRoomRepository _roomRepository;
+    private readonly HotelBookingDbContext _dbContext;
+
+    public BookingService(IBookingRepository bookingRepository, IRoomRepository roomRepository, HotelBookingDbContext dbContext)
     {
-        return _bookingRepository.GetBookingsForUserAsync(userId);
+        _bookingRepository = bookingRepository;
+        _roomRepository = roomRepository;
+        _dbContext = dbContext;
     }
 
-    public Task<List<Booking>> GetBookingsForAdminAsync()
-    {
-        return _bookingRepository.GetBookingsForAdminAsync();
-    }
-
+  
     public async Task<(ServiceResult Result, Booking? Booking)> CreateBookingAsync(BookingRequest request, User? user)
     {
         if (user is null)
