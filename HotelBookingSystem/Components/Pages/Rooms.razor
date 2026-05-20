@@ -77,7 +77,21 @@
     </div>
 </section>
 
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="@messageClass">@message</div>
+}
 
+<div class="room-layout">
+    <aside class="booking-sidebar">
+        @if (selectedRoom is null)
+        {
+            <div class="empty-state">
+                <strong>Select a room</strong>
+                <p>Choose a room package below. The booking form will open here with selected hotel name, dates, and live total calculation.</p>
+            </div>
+        }
+        else
         {
             <div class="panel-header">
                 <span>Booking</span>
