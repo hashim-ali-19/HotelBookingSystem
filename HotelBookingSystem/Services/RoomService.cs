@@ -23,7 +23,22 @@ public class RoomService
     }
 
     public Task<List<Room>> SearchAvailableRoomsAsync(RoomSearchFilter filter)
-    
+    {
+        return _roomRepository.SearchAvailableRoomsAsync(filter);
+    }
+
+    public Task<Room?> GetRoomAsync(int id)
+    {
+        return _roomRepository.GetByIdAsync(id);
+    }
+
+    public Task<int> GetAvailableUnitsAsync(int roomId, DateTime checkIn, DateTime checkOut)
+    {
+        return _roomRepository.GetAvailableUnitsAsync(roomId, checkIn, checkOut);
+    }
+
+    public Task<List<Review>> GetRecentReviewsAsync(int count = 6)
+    {
         return _roomRepository.GetRecentReviewsAsync(count);
     }
 
@@ -39,23 +54,6 @@ public class RoomService
             await _roomRepository.AddAsync(room);
             return new ServiceResult(true, "Room package added successfully.");
         }
-
-        await _roomRepository.UpdateAsync(room);
-        return new ServiceResult(true, "Room package updated successfully.");
-    }
-
-    public async Task<ServiceResult> DeleteRoomAsync(int roomId)
-    {
-        var room = await _roomRepository.GetByIdAsync(roomId);
-        if (room is null)
-        {
-            return new ServiceResult(false, "Room package not found.");
-        }
-
-        room.IsActive = false;
-        await _roomRepository.UpdateAsync(room);
-        return new ServiceResult(true, "Room package deactivated.");
-    }
 
     public async Task<ServiceResult> AddReviewAsync(Review review)
     {
