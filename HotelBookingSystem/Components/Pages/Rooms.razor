@@ -55,24 +55,29 @@
                 </InputSelect>
             </label>
             <label>
-               
+                Max Price
+                <InputNumber class="form-control" @bind-Value="filter.MaxPrice" placeholder="40000" />
+            </label>
+        </div>
+        <ValidationSummary />
+        <div class="toolbar-actions">
+            <button class="btn btn-brand" type="submit">Search</button>
+            <button class="btn btn-soft" type="button" @onclick="ResetFilters">Reset</button>
+        </div>
+    </EditForm>
+
+    <div class="hotel-name-strip">
+        <span>Available hotels</span>
+        @foreach (var hotel in hotels)
+        {
+            <button class="hotel-pill" type="button" @onclick="() => SearchCityAsync(hotel.City)">
+                @hotel.Name <small>@hotel.City</small>
+            </button>
+        }
+    </div>
 </section>
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <div class="@messageClass">@message</div>
-}
 
-<div class="room-layout">
-    <aside class="booking-sidebar">
-        @if (selectedRoom is null)
-        {
-            <div class="empty-state">
-                <strong>Select a room</strong>
-                <p>Choose a room package below. The booking form will open here with selected hotel name, dates, and live total calculation.</p>
-            </div>
-        }
-        else
         {
             <div class="panel-header">
                 <span>Booking</span>
