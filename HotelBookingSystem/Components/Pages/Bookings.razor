@@ -77,7 +77,16 @@ else
                     </div>
                 </div>
 
-          
+                <div class="booking-actions">
+                    <span class="payment-label">Total Amount</span>
+                    <strong>PKR @booking.TotalAmount.ToString("N0")</strong>
+                    <button class="btn btn-brand" disabled="@(booking.PaymentStatus == PaymentStatus.Paid || booking.Status == BookingStatus.Cancelled)" @onclick="() => StartPayment(booking)">
+                        Pay Now
+                    </button>
+                    <button class="btn btn-soft danger" disabled="@(booking.Status == BookingStatus.Cancelled)" @onclick="() => CancelAsync(booking.Id)">
+                        Cancel
+                    </button>
+                </div>
 
                 @if (activePaymentBookingId == booking.Id)
                 {
