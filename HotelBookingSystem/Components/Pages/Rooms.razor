@@ -48,12 +48,7 @@
                 Room Type
                 <InputSelect class="form-select" @bind-Value="filter.Type">
                     <option value="">Any type</option>
-                    @foreach (var type in Enum.GetValues<RoomType>())
-                    {
-                        <option value="@type">@type</option>
-                    }
-                </InputSelect>
-            </label>
+                 
             <label>
                 Max Price
                 <InputNumber class="form-control" @bind-Value="filter.MaxPrice" placeholder="40000" />
