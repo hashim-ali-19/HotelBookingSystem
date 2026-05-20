@@ -5,17 +5,19 @@
 @inject BookingService BookingService
 @inject NavigationManager Navigation
 
+<PageTitle>AuraStay Hotel Booking</PageTitle>
 
-
-    <div class="booking-panel">
-        <div class="panel-header">
-            <span>Quick Search</span>
-            <strong>Find your stay</strong>
+<section class="hero-section">
+    <div class="hero-copy">
+        <h1>AuraStay Hotel Booking</h1>
+        <p>Book premium stays across Lahore, Karachi, Islamabad, and Hunza with live availability, payments, reviews, and admin analytics.</p>
+        <div class="hero-actions">
+            <button class="btn btn-brand" @onclick="GoToRooms">Explore Rooms</button>
+            <button class="btn btn-soft" @onclick="GoToAdmin">View Admin Demo</button>
         </div>
-        <EditForm Model="quickSearch" OnValidSubmit="GoToRooms" FormName="home-search">
-            <DataAnnotationsValidator />
-            <div class="form-grid two">
-                <label>
+    </div>
+
+    
                     City
                     <InputText class="form-control" @bind-Value="quickSearch.City" placeholder="Lahore" />
                 </label>
