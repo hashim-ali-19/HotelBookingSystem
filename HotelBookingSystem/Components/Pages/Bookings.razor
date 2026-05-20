@@ -132,26 +132,7 @@ else
 
                                 @if (paymentInput.Method == PaymentMethod.Card)
                                 {
-                                    <label>
-                                        Card Holder Name
-                                        <InputText class="form-control" @bind-Value="paymentInput.CardHolderName" placeholder="Name on card" />
-                                    </label>
-                                    <label>
-                                        Card Number
-                                        <InputText class="form-control" @bind-Value="paymentInput.CardNumber" placeholder="4111 1111 1111 1111" />
-                                    </label>
-                                    <label>
-                                        Expiry
-                                        <InputText class="form-control" @bind-Value="paymentInput.Expiry" placeholder="MM/YY" />
-                                    </label>
-                                    <label>
-                                        CVV
-                                        <InputText class="form-control" type="password" @bind-Value="paymentInput.Cvv" placeholder="123" />
-                                    </label>
-                                    <label class="span-two">
-                                        Billing Address
-                                        <InputText class="form-control" @bind-Value="paymentInput.BillingAddress" placeholder="House, street, city" />
-                                    </label>
+                                
                                 }
                             </div>
 
