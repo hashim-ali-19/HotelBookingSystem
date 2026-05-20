@@ -1,3 +1,27 @@
+using HotelBookingSystem.Data;
+using HotelBookingSystem.Models;
+using HotelBookingSystem.Repositories;
+
+namespace HotelBookingSystem.Services;
+
+public class PaymentService
+{
+    private readonly HotelBookingDbContext _dbContext;
+    private readonly IBookingRepository _bookingRepository;
+
+    public PaymentService(HotelBookingDbContext dbContext, IBookingRepository bookingRepository)
+    {
+        _dbContext = dbContext;
+        _bookingRepository = bookingRepository;
+    }
+
+    public async Task<ServiceResult> PayBookingAsync(int bookingId, PaymentInput input)
+    {
+        var booking = await _bookingRepository.GetBookingDetailsAsync(bookingId);
+        if (booking is null)
+        {
+            return new ServiceResult(false, "Booking not found.");
+        }
 
         if (booking.Status == BookingStatus.Cancelled)
         {
