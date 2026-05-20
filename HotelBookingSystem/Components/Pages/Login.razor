@@ -37,7 +37,15 @@
                 <InputText class="form-control" type="password" @bind-Value="login.Password" />
             </label>
             <ValidationSummary />
-        
+            @if (!string.IsNullOrWhiteSpace(message))
+            {
+                <div class="@messageClass">@message</div>
+            }
+            <button class="btn btn-brand w-100" type="submit">Login</button>
+            <button class="btn btn-soft w-100 mt-2" type="button" @onclick="GoToRegister">Create Account</button>
+            <button class="btn btn-soft w-100 mt-2" type="button" @onclick="GoToAdminLogin">Administration Login</button>
+        </EditForm>
+    </div>
 </section>
 
 @code {
@@ -45,25 +53,4 @@
     private string? message;
     private string messageClass = "alert-success";
 
-    private async Task LoginAsync()
-    {
-        var result = await AuthService.LoginAsync(login, UserRole.Guest);
-        message = result.Message;
-        messageClass = result.Success ? "alert-success" : "alert-danger";
-
-        if (result.Success)
-        {
-            Navigation.NavigateTo("/rooms");
-        }
-    }
-
-    private void GoToRegister()
-    {
-        Navigation.NavigateTo("/register");
-    }
-
-    private void GoToAdminLogin()
-    {
-        Navigation.NavigateTo("/admin-login");
-    }
-}
+   
