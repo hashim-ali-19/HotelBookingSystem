@@ -29,32 +29,7 @@ else
         <div class="@messageClass">@message</div>
     }
 
-    <section class="metric-strip compact">
-        <div>
-            <strong>@ActiveBookings.Count</strong>
-            <span>Active Reservations</span>
-        </div>
-        <div>
-            <strong>@PaidBookings.Count</strong>
-            <span>Paid Bookings</span>
-        </div>
-        <div>
-            <strong>@UnpaidBookings.Count</strong>
-            <span>Unpaid Bookings</span>
-        </div>
-        <div>
-            <strong>PKR @PaidRevenue.ToString("N0")</strong>
-            <span>Paid Revenue</span>
-        </div>
-        <div>
-            <strong>PKR @PendingAmount.ToString("N0")</strong>
-            <span>Pending Amount</span>
-        </div>
-        <div>
-            <strong>PKR @ActiveTotalValue.ToString("N0")</strong>
-            <span>Active Total</span>
-        </div>
-    </section>
+
 
     <div class="booking-list">
         @foreach (var booking in bookings)
