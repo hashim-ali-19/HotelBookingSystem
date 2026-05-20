@@ -17,7 +17,15 @@
         </div>
     </div>
 
-    
+    <div class="booking-panel">
+        <div class="panel-header">
+            <span>Quick Search</span>
+            <strong>Find your stay</strong>
+        </div>
+        <EditForm Model="quickSearch" OnValidSubmit="GoToRooms" FormName="home-search">
+            <DataAnnotationsValidator />
+            <div class="form-grid two">
+                <label>
                     City
                     <InputText class="form-control" @bind-Value="quickSearch.City" placeholder="Lahore" />
                 </label>
@@ -40,24 +48,7 @@
     </div>
 </section>
 
-<section class="metric-strip">
-    <div>
-        <strong>@metrics.TotalHotels</strong>
-        <span>Partner Hotels</span>
-    </div>
-    <div>
-        <strong>@metrics.TotalRooms</strong>
-        <span>Room Units</span>
-    </div>
-    <div>
-        <strong>@metrics.ActiveBookings</strong>
-        <span>Active Bookings</span>
-    </div>
-    <div>
-        <strong>@metrics.AverageRating.ToString("0.0")</strong>
-        <span>Guest Rating</span>
-    </div>
-</section>
+
 
 <section class="section-heading">
     <h2>Hotels</h2>
