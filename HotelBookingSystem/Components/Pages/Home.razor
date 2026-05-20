@@ -99,16 +99,7 @@
     <h2>Recent reviews</h2>
 </section>
 
-<div class="review-grid">
-    @foreach (var review in reviews)
-    {
-        <article class="review-card">
-            <div class="rating-pill">@review.Rating/5</div>
-            <p>@review.Comment</p>
-            <strong>@review.ReviewerName</strong>
-            <span>@review.Hotel?.Name</span>
-        </article>
-    }
+
 </div>
 
 @code {
