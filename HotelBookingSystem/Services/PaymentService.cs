@@ -43,7 +43,6 @@ public class PaymentService
             TransactionReference = BuildTransactionReference(input),
             PaidAt = DateTime.UtcNow
         };
-
         booking.PaymentStatus = PaymentStatus.Paid;
         booking.Status = BookingStatus.Confirmed;
         booking.UpdatedAt = DateTime.UtcNow;
